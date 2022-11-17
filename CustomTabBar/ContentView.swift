@@ -8,17 +8,42 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @StateObject var router: TabRouter
+    
     var body: some View {
         GeometryReader { geometry in
             VStack {
                 Spacer()
-                Text("home")
+                switch router.screen {
+                case .homepage:
+//                    MapPage()
+                    Text("home")
+                case .listpage:
+//                    AlarmList()
+                    Text("list")
+                case .addAlarmPage:
+//                    AddNewView()
+                    Text("new page")
+                }
                 Spacer()
                 HStack {
-                    TabBarIcon(width: geometry.size.width/3, height: geometry.size.height/20, systemIconName: "house", tabName: "Map")
-                    TabBarIcon(width: geometry.size.width/3, height: geometry.size.height/20, systemIconName: "plus", tabName: "Add")
+                    TabBarIcon(router: router, screen: .homepage, width: geometry.size.width/3, height: geometry.size.height/20, systemIconName: "house", tabName: "Map")
+                    //
+                    ZStack {
+                        Circle()
+                            .foregroundColor(.white)
+                            .frame(width: geometry.size.width/5, height: geometry.size.width/5)
+                            .shadow(radius: 4)
+                        
+                        Image(systemName: "plus.circle.fill")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: geometry.size.width/5.5-5 , height: geometry.size.width/5.5-5)
+                            .foregroundColor(Color("primary"))
+                    }.offset(y: -geometry.size.height/8/2)
                     
-                    TabBarIcon(width: geometry.size.width/3, height: geometry.size.height/20, systemIconName: "bookmark.fill", tabName: "List")
+                    TabBarIcon(router: router, screen: .listpage, width: geometry.size.width/3, height: geometry.size.height/20, systemIconName: "bookmark.fill", tabName: "List")
                 }.frame(width: geometry.size.width, height: geometry.size.height/8)
                     .background(Color("bg").shadow(radius: 2))
             } .edgesIgnoringSafeArea(.bottom)
@@ -28,6 +53,8 @@ struct ContentView: View {
 
 struct TabBarIcon: View {
     
+    @StateObject var router: TabRouter
+    let screen: Screen
     let width, height: CGFloat
     let systemIconName, tabName: String
     
@@ -44,11 +71,14 @@ struct TabBarIcon: View {
             Spacer()
         }
         .padding(.horizontal, -4)
+        .onTapGesture {
+            router.screen = screen
+        }.foregroundColor(router.screen == screen ? Color("primary") : .gray)
     }
 }
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        ContentView(router: TabRouter())
     }
 }
